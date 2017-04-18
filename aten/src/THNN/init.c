@@ -89,6 +89,9 @@
 #include "generic/HardTanh.c"
 #include "THGenerateFloatTypes.h"
 
+#include "generic/Im2Col.c"
+#include "THGenerateFloatTypes.h"
+
 #include "generic/GatedLinearUnit.c"
 #include "THGenerateFloatTypes.h"
 

@@ -1620,6 +1620,7 @@ TH_API void THNN_(VolumetricUpSamplingNearest_updateOutput)(
           THTensor *input,
           THTensor *output,
           int scale_factor);
+
 TH_API void THNN_(VolumetricUpSamplingNearest_updateGradInput)(
           THNNState *state,
           THTensor *input,
@@ -1631,9 +1632,10 @@ TH_API void THNN_(VolumetricUpSamplingTrilinear_updateOutput)(
           THNNState *state,
           THTensor *input,
           THTensor *output,
-	  int outputDepth,
+          int outputDepth,
           int outputHeight,
           int outputWidth);
+
 TH_API void THNN_(VolumetricUpSamplingTrilinear_updateGradInput)(
           THNNState *state,
           THTensor *gradOutput,
@@ -1673,5 +1675,23 @@ TH_API void THNN_(TemporalReplicationPadding_updateGradInput)(
           THTensor *gradInput,
           int pad_l, int pad_r);
 
+TH_API void THNN_(Im2Col_updateOutput)(
+          THNNState *state,
+          THTensor *input,
+          THTensor *output,
+          int kH, int kW,
+          int dH, int dW,
+          int padH, int padW,
+          int sH, int sW);
+
+TH_API void THNN_(Im2Col_updateGradInput)(
+          THNNState *state,
+          THTensor *input,
+          THTensor *gradOutput,
+          THTensor *gradInput,
+          int kH, int kW,
+          int dH, int dW,
+          int padH, int padW,
+          int sH, int sW);
 
 #endif

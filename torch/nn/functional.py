@@ -12,6 +12,8 @@ from .modules import utils
 from ._functions.linear import Bilinear
 from ._functions.padding import ConstantPadNd
 from ._functions.vision import GridSampler, AffineGridGenerator
+from ._functions.thnn.unfold import Im2Col
+from ._functions.thnn.fold import Col2Im
 from torch.autograd import Variable
 from .modules.utils import _single, _pair, _triple
 
@@ -1652,7 +1654,6 @@ def triplet_margin_loss(anchor, positive, negative, margin=1.0, p=2, eps=1e-6, s
     loss = torch.mean(dist_hinge)
     return loss
 
-
 def normalize(input, p=2, dim=1, eps=1e-12):
     r"""Performs :math:`L_p` normalization of inputs over specified dimension.
 
@@ -1675,3 +1676,9 @@ def normalize(input, p=2, dim=1, eps=1e-12):
         eps (float): small value to avoid division by zero. Default: 1e-12
     """
     return input / input.norm(p, dim, True).clamp(min=eps).expand_as(input)
+
+def im2col(input, kH, kW, dH, dW, padH, padW, sH, sW):
+    return _functions.thnn.Im2Col(kH, kW, dH, dW, padH, padW, sH, sW)(input)
+
+def correlation(input1, input2, pad_size, kernel_size, max_displacement, stride1, stride2, corr_multiply):
+    return _functions.thnn.Correlation(pad_size, kernel_size, max_displacement, stride1, stride2, corr_multiply)(input1, input2)

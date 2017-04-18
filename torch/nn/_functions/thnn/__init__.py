@@ -4,6 +4,8 @@ from .auto import *
 from .normalization import *
 from .activation import *
 from .pooling import *
+from .fold import *
+from .unfold import *
 from .sparse import *
 from .upsampling import *
 from .rnnFusedPointwise import *

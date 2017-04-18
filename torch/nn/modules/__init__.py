@@ -25,7 +25,8 @@ from .rnn import RNNBase, RNN, LSTM, GRU, \
 from .pixelshuffle import PixelShuffle
 from .upsampling import UpsamplingNearest2d, UpsamplingBilinear2d, Upsample
 from .distance import PairwiseDistance, CosineSimilarity
-
+from .unfold import Unfold
+from .fold import Fold
 
 __all__ = [
     'Module', 'Linear', 'Conv1d', 'Conv2d', 'Conv3d', 'ConvTranspose1d',
@@ -45,5 +46,5 @@ __all__ = [
     'PixelShuffle', 'Upsample', 'UpsamplingNearest2d', 'UpsamplingBilinear2d', 'PairwiseDistance',
     'AdaptiveMaxPool1d', 'AdaptiveMaxPool2d', 'AdaptiveMaxPool3d', 'AdaptiveAvgPool1d', 'AdaptiveAvgPool2d',
     'AdaptiveAvgPool3d', 'TripletMarginLoss', 'ZeroPad2d', 'ConstantPad1d', 'ConstantPad2d',
-    'ConstantPad3d', 'Bilinear', 'CosineSimilarity',
+    'ConstantPad3d', 'Bilinear', 'CosineSimilarity', 'Unfold', 'Fold',
 ]
