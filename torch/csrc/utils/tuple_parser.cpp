@@ -4,6 +4,7 @@
 
 #include "torch/csrc/DynamicTypes.h"
 #include "torch/csrc/autograd/python_variable.h"
+#include "python_strings.h"
 #include "python_numbers.h"
 #include "torch/csrc/THP.h"
 
@@ -70,10 +71,10 @@ auto TupleParser::parse(std::vector<int>& x) -> void {
 
 auto TupleParser::parse(std::string& x) -> void {
   PyObject* obj = next_arg();
-  if (!THPUtils_checkBytes(obj)) {
-    throw invalid_type("bytes");
+  if (!THPUtils_checkString(obj)) {
+    throw invalid_type("bytes/str");
   }
-  x = THPUtils_bytesAsString(obj);
+  x = THPUtils_unpackString(obj);
 }
 
 auto TupleParser::next_arg() -> PyObject* {
