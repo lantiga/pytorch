@@ -158,7 +158,8 @@ class Permute(Function):
         for i, dim_idx in enumerate(dim_indices):
             ctx.rev_dim_indices[dim_idx] = i
         result = input.permute(*dim_indices)
-        ctx.mark_shared_storage((input, result))
+        if not result is input:
+            ctx.mark_shared_storage((input, result))
         return result
 
     @staticmethod
