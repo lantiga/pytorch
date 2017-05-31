@@ -13,6 +13,7 @@
 #include "torch/csrc/utils/auto_gil.h"
 #include "torch/csrc/DynamicTypes.h"
 #include "torch/csrc/Exceptions.h"
+#include <iostream>
 
 using namespace torch::autograd;
 
@@ -47,17 +48,61 @@ PyObject* THPCppFunction_call(PyObject* self, PyObject* args, PyObject *kwargs)
   }
   END_HANDLE_TH_ERRORS
 
+  PyObject *autograd_module = PyImport_ImportModule("torch.autograd");
+  PyObject* trace = PyObject_GetAttrString(autograd_module,"_trace");
+
+  PyObject* outputs = NULL;
+
   int num_outputs = output.size();
   if (num_outputs == 1) {
     // assume we want to unpack one element tuples for now
-    return THPVariable_Wrap(output[0]);
+    outputs = THPVariable_Wrap(output[0]);
+  }
+  else {
+    THPObjectPtr tuple(PyTuple_New(num_outputs));
+    for (int i = 0; i != num_outputs; ++i) {
+      PyTuple_SET_ITEM(tuple.get(), i, THPVariable_Wrap(output[i]));
+    }
+    outputs = tuple.release();
   }
 
-  THPObjectPtr tuple(PyTuple_New(num_outputs));
-  for (int i = 0; i != num_outputs; ++i) {
-    PyTuple_SET_ITEM(tuple.get(), i, THPVariable_Wrap(output[i]));
+  if (trace != Py_None) {
+
+    PyObject* trace_fn = self;
+    Py_INCREF(trace_fn);
+
+    PyObject* var_inputs = PyTuple_New(num_inputs);
+    if (!var_inputs) throw python_error();
+    for (int i = 0; i != num_inputs; ++i) {
+      PyObject* arg = PyTuple_GET_ITEM(args, i);
+      Py_INCREF(arg);
+      PyTuple_SET_ITEM(var_inputs, i, arg);
+    }
+
+    PyObject* var_outputs = outputs;
+    if (PyTuple_Check(var_outputs)) {
+      Py_INCREF(var_outputs);
+    }
+    else {
+      PyObject *tuple = PyTuple_New(1);
+      if (!tuple) throw python_error();
+      Py_INCREF(var_outputs);
+      PyTuple_SET_ITEM(tuple, 0, var_outputs);
+      var_outputs = tuple;
+    }
+
+    PyObject* trace_el = PyTuple_New(5);
+    if (!trace_el) throw python_error();
+    PyObject* name = PyString_FromString(((THPCppFunction*)self)->cdata->name().c_str());
+    PyTuple_SET_ITEM(trace_el, 0, name);
+    PyTuple_SET_ITEM(trace_el, 1, self);
+    PyTuple_SET_ITEM(trace_el, 2, trace_fn);
+    PyTuple_SET_ITEM(trace_el, 3, var_inputs);
+    PyTuple_SET_ITEM(trace_el, 4, var_outputs);
+    PyList_Append(trace, trace_el);
   }
-  return tuple.release();
+
+  return outputs;
 }
 
 int THPCppFunction_traverse(PyObject* self, visitproc visit, void *arg)

@@ -697,6 +697,12 @@ PyObject *THPFunction_apply(PyObject *cls, PyObject *_inputs)
   if (!ctx_obj) return NULL;
   THPFunction* ctx = (THPFunction*)ctx_obj.get();
 
+  THPObjectPtr forward_cls(PyObject_GetAttrString(ctx_obj, "_forward_cls"));
+  if (!forward_cls) return NULL;
+  THPObjectPtr fwd_ctx_obj(PyObject_CallFunctionObjArgs(forward_cls, NULL));
+  if (!fwd_ctx_obj) return NULL;
+  THPFunction* fwd_ctx = (THPFunction*)fwd_ctx_obj.get();
+
   // Prepare inputs and allocate context (grad fn)
   auto info_pair = unpack_input<false>(_inputs);
   auto& unpacked_input = info_pair.first;
@@ -722,7 +728,49 @@ PyObject *THPFunction_apply(PyObject *cls, PyObject *_inputs)
   THPObjectPtr tensor_outputs(PyObject_CallObject(forward_fn, ctx_tensor_input));
   if (!tensor_outputs) return NULL;
 
-  return process_outputs(ctx, unpacked_input, std::move(tensor_outputs), is_volatile);
+  PyObject* outputs = process_outputs(ctx, unpacked_input, std::move(tensor_outputs), is_volatile);
+
+  PyObject *autograd_module = PyImport_ImportModule("torch.autograd");
+  PyObject* trace = PyObject_GetAttrString(autograd_module,"_trace");
+
+  if (trace != Py_None) {
+
+    PyObject* trace_fn = forward_fn.get();
+    Py_INCREF(trace_fn);
+
+    PyObject* var_inputs = PyTuple_New(num_args);
+    if (!var_inputs) throw python_error();
+    for (int i = 0; i < num_args; ++i) {
+      PyObject *arg = PyTuple_GET_ITEM(_inputs, i);
+      Py_INCREF(arg);
+      PyTuple_SET_ITEM(var_inputs, i, arg);
+    }
+
+    PyObject* var_outputs = outputs;
+    if (PyTuple_Check(var_outputs)) {
+      Py_INCREF(var_outputs);
+    }
+    else {
+      PyObject *tuple = PyTuple_New(1);
+      if (!tuple) throw python_error();
+      Py_INCREF(var_outputs);
+      PyTuple_SET_ITEM(tuple, 0, var_outputs);
+      var_outputs = tuple;
+    }
+
+    // TODO: use StructSequence
+    PyObject* trace_el = PyTuple_New(5);
+    if (!trace_el) throw python_error();
+    PyObject* name = PyString_FromString(fwd_ctx->cdata.name().c_str());
+    PyTuple_SET_ITEM(trace_el, 0, name);
+    PyTuple_SET_ITEM(trace_el, 1, fwd_ctx_obj.release());
+    PyTuple_SET_ITEM(trace_el, 2, trace_fn);
+    PyTuple_SET_ITEM(trace_el, 3, var_inputs);
+    PyTuple_SET_ITEM(trace_el, 4, var_outputs);
+    PyList_Append(trace, trace_el);
+  }
+
+  return outputs;
   END_HANDLE_TH_ERRORS
 }
 
