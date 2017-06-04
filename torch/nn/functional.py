@@ -603,10 +603,10 @@ def upsample_nearest(input, size=None, scale_factor=None):
         scale_factor (int): multiplier for spatial size. Has to be an integer.
     """
     if input.dim() == 4:
-        assert type(size) == int or len(size) == 2, '4D tensors expect size as int or Tuple[int, int]'
+        assert size is None or type(size) == int or len(size) == 2, '4D tensors expect size as int or Tuple[int, int]'
         return _functions.thnn.UpsamplingNearest2d(_pair(size), scale_factor)(input)
     elif input.dim() == 5:
-        assert type(size) == int or len(size) == 3, '5D tensors expect size as int or Tuple[int, int, int]'
+        assert size is None or type(size) == int or len(size) == 3, '5D tensors expect size as int or Tuple[int, int, int]'
         return _functions.thnn.UpsamplingNearest3d(_triple(size), scale_factor)(input)
     else:
         raise NotImplementedError("Only 4D and 5D upsampling is supported for now")
@@ -624,7 +624,7 @@ def upsample_bilinear(input, size=None, scale_factor=None):
         scale_factor (int or Tuple[int, int]): multiplier for spatial size
     """
     assert input.dim() == 4, "4D tensors expected in input"
-    assert type(size) == int or len(size) == 2, '4D tensors expect size as int or Tuple[int, int]'
+    assert size is None or type(size) == int or len(size) == 2, '4D tensors expect size as int or Tuple[int, int]'
     return _functions.thnn.UpsamplingBilinear2d(_pair(size), scale_factor)(input)
 
 
@@ -640,7 +640,7 @@ def upsample_trilinear(input, size=None, scale_factor=None):
         scale_factor (int): multiplier for spatial size. Has to be an integer.
     """
     assert input.dim() == 5, "5D tensors expected in input"
-    assert type(size) == int or len(size) == 3, '5D tensors expect size as int or Tuple[int, int, int]'
+    assert size is None or type(size) == int or len(size) == 3, '5D tensors expect size as int or Tuple[int, int, int]'
     return _functions.thnn.UpsamplingTrilinear3d(_triple(size), scale_factor)(input)
 
 
