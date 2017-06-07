@@ -1258,6 +1258,12 @@ auto THCTensor<real>::maxall() -> scalar_type {
 }
 
 template<>
+auto THCTensor<real>::medianall() -> scalar_type {
+  throw std::runtime_error("unsupported operation 'median'");
+  //return uncast_scalar(THCTensor_(medianall)(state, tensor));
+}
+
+template<>
 auto THCTensor<real>::sumall() -> scalar_type {
   return THCTensor_(sumall)(state, tensor);
 }
