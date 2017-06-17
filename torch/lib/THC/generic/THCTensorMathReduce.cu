@@ -330,6 +330,30 @@ THCTensor_(maxall)(THCState *state, THCTensor *self) {
   return val;
 }
 
+THC_API real
+THCTensor_(medianall)(THCState *state, THCTensor *self) {
+  THCAssertSameGPU(THCTensor_(checkGPU)(state, 1, self));
+
+  if (!self->storage) THError("cannot compute median of when storage is NULL");
+
+  THCTensor *clone = THCTensor_(newClone)(state, self);
+
+  THCStorage *storage = THCTensor_(storage)(state, clone);
+  ptrdiff_t offset = THCTensor_(storageOffset)(state, clone);
+  ptrdiff_t nelem = THCTensor_(nElement)(state, clone);
+
+  thrust::stable_sort(storage->data + offset, storage->data + offset + nelem);
+
+  real val;
+  THCudaCheck(cudaMemcpy(&val, data + nelem/2, 1, "cudaMemcpyDeviceToDevice"));
+
+  THCTensor_free(state, clone);
+
+  THCudaCheck(cudaGetLastError());
+
+  return val;
+}
+
 THC_API void
 THCTensor_(max)(THCState *state,
                 THCTensor *values,
