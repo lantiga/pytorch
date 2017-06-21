@@ -389,7 +389,7 @@ THCTensor_(median)(THCState *state,
 
   if (!keepdim) {
     THCTensor_(squeeze1d)(state, values, values, dimension);
-    THCudaLongTensor_(squeeze1d)(state, indices, indices, dimension);
+    THCudaLongTensor_squeeze1d(state, indices, indices, dimension);
   }
 
   THCudaCheck(cudaGetLastError());
