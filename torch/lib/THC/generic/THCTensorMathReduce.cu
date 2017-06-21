@@ -330,24 +330,60 @@ THCTensor_(maxall)(THCState *state, THCTensor *self) {
   return val;
 }
 
+/*
+__host__ __device__ inline bool operator<(const half &lhs, const half &rhs)
+{
+  return THCNumerics<typename TensorUtils<THCTensor>::DataType>::lt(lhs,rhs);
+}
+
 THC_API real
 THCTensor_(medianall)(THCState *state, THCTensor *self) {
   THCAssertSameGPU(THCTensor_(checkGPU)(state, 1, self));
 
   if (!self->storage) THError("cannot compute median of when storage is NULL");
 
+  real val;
+
   THCTensor *clone = THCTensor_(newClone)(state, self);
 
-  THCStorage *storage = THCTensor_(storage)(state, clone);
+  real *data = THCTensor_(storage)(state, clone)->data;
   ptrdiff_t offset = THCTensor_(storageOffset)(state, clone);
   ptrdiff_t nelem = THCTensor_(nElement)(state, clone);
 
-  thrust::stable_sort(storage->data + offset, storage->data + offset + nelem);
+  thrust::stable_sort(data + offset, data + offset + nelem);
+
+  THCudaCheck(cudaMemcpy(&val, data + offset + nelem/2, 1, cudaMemcpyDeviceToDevice));
+
+  THCTensor_(free)(state, clone);
+
+  THCudaCheck(cudaGetLastError());
+
+  return val;
+}
+*/
+
+THC_API real
+THCTensor_(medianall)(THCState *state, THCTensor *self) {
+  THCAssertSameGPU(THCTensor_(checkGPU)(state, 1, self));
 
   real val;
-  THCudaCheck(cudaMemcpy(&val, data + nelem/2, 1, "cudaMemcpyDeviceToDevice"));
 
-  THCTensor_free(state, clone);
+  ptrdiff_t nelem = THCTensor_(nElement)(state, clone);
+  THLongStorage *size = THLongStorage_(newWithSize1)(state, nelem);
+  THCTensor *view = THCTensor_(newView)(state, self, size);
+
+  THCStorage_(free)(state, size);
+
+  THCTensor *sorted = THCTensor_(new)();
+  THCudaLongTensor *indices = THCudaLongTensor_(new)();
+
+  THCTensor_(sort)(state, sorted, indices, view, 0, 0);
+
+  val = THCTensor_(get1d)(state, sorted, nelem/2);
+
+  THCTensor_(free)(state, view);
+  THCTensor_(free)(state, sorted);
+  THCudaLongTensor_(free)(state, indices);
 
   THCudaCheck(cudaGetLastError());
 
