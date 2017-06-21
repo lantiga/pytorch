@@ -510,7 +510,6 @@
 
 [[
   name: median
-  defined_if: "!IS_CUDA"
   with_stateless: True
   options:
     - cname: medianall
