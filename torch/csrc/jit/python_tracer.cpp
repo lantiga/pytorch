@@ -82,6 +82,14 @@ void initPythonTracerBindings(PyObject* module_) {
       ss << *s.graph;
       return ss.str();
     })
+    .def("push_block", [](TracingState& s, const std::string& block_name) {
+      ASSERT_UNEXPIRED("export");
+      s.push_block(block_name);
+    })
+    .def("pop_block", [](TracingState& s) {
+      ASSERT_UNEXPIRED("export");
+      s.pop_block();
+    })
     .def("export", [](TracingState& s, bool verbose) {
       ASSERT_UNEXPIRED("export");
       return py::bytes(ExportGraph(s.graph, s.buffer_map, {}, verbose));

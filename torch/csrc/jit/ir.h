@@ -238,6 +238,7 @@ private:
   size_t unique_ = 0;          // unique id
   size_t stage_ = 0;           // 0-forward, 1-backward, 2-double-backward,...
   std::string debug_name_;
+  std::string block_name_;
 protected:
   TypePtr type_;
   Node(Graph * graph_, NodeKind kind_); //defined after graph
@@ -258,6 +259,9 @@ public:
   bool hasType() const {
     return type_ != nullptr;
   }
+  virtual std::string name() {
+    return std::string();
+  }
   Node* setType(const TypePtr type) {
     type_ = type;
     return this;
@@ -271,6 +275,13 @@ public:
   }
   const std::string & debugName() {
     return debug_name_;
+  }
+  Node* setBlockName(const std::string & name) {
+    block_name_ = name;
+    return this;
+  }
+  const std::string & blockName() {
+    return block_name_;
   }
   Graph * owningGraph() {
     return graph_;
@@ -678,6 +689,8 @@ private:
 
   size_t new_node_stage_;
 
+  std::string _nested_block_name;
+
 public:
   Graph()
   : next_unique_(0)
@@ -727,12 +740,24 @@ public:
     return outputs().size() - 1;
   }
 
+  void update_nested_block_name(const std::vector<std::string>& block_stack) {
+    _nested_block_name = "";
+    for (const auto &name : block_stack) {
+      _nested_block_name += name + ".";
+    }
+  }
+
+  std::string nested_block_name() {
+    return _nested_block_name;
+  }
+
   Node * create(NodeKind kind) {
     return new Node(this,kind);
   }
 
   Node * create(NodeKind kind, ArrayRef<Node*> inputs) {
     auto n = new Node(this,kind);
+    n->setBlockName(_nested_block_name);
     for(auto i : inputs)
       n->addInput(i);
     return n;
@@ -936,7 +961,7 @@ struct PythonOp : public Node {
   // Scalar arguments to the Python function.  Not necessarily passed to
   // the function in this order; see cconv for the correct order.
   std::vector<THPObjectPtr> scalar_args;
-  std::string name();
+  virtual std::string name() override;
   virtual void cloneFrom(Node * other_) override {
     Node::cloneFrom(other_);
     auto other = other_->cast<PythonOp>();
@@ -962,7 +987,7 @@ struct CppOp : public Node {
   CppOp(Graph * g)
   : Node(g,kCppOp) {}
   std::shared_ptr<torch::autograd::Function> fn;
-  std::string name();
+  virtual std::string name() override;
   CppOp* init(std::shared_ptr<torch::autograd::Function> fn) {
     this->fn = std::move(fn);
     return this;

@@ -200,8 +200,10 @@ class Traceable(object):
         trace_inputs = self.get_trace_inputs(args, extra)
 
         trace = torch._C._tracer_enter(trace_inputs, 0 if is_volatile else self.num_derivatives)
+        torch._tracing_state = trace
         out = self._run(*args)
         torch._C._tracer_exit(flatten(out))
+        torch._tracing_state = None
 
         return trace, out
 

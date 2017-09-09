@@ -254,6 +254,8 @@ class Module(object):
         return handle
 
     def __call__(self, *input, **kwargs):
+        if hasattr(torch, '_tracing_state') and torch._tracing_state:
+            torch._tracing_state.push_block('%s$%d' % (self.__class__.__name__, id(self)))
         for hook in self._forward_pre_hooks.values():
             hook(self, input)
         result = self.forward(*input, **kwargs)
@@ -273,6 +275,8 @@ class Module(object):
                     wrapper = functools.partial(hook, self)
                     functools.update_wrapper(wrapper, hook)
                     grad_fn.register_hook(wrapper)
+        if hasattr(torch, '_tracing_state') and torch._tracing_state:
+            torch._tracing_state.pop_block()
         return result
 
     def __setstate__(self, state):

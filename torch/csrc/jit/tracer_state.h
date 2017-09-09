@@ -65,6 +65,8 @@ struct TracingState : public std::enable_shared_from_this<TracingState> {
   std::vector<std::vector<VariableFlags>> var_flags;
   std::vector<function_list> output_edges;
 
+  std::vector<std::string> block_stack;
+
   std::mutex mutex;
   variable_list inputs; // Used only for the duration of first stage
 
@@ -76,6 +78,16 @@ struct TracingState : public std::enable_shared_from_this<TracingState> {
 
   bool is_complete() const {
     return !is_expired() && graph->stage() == num_stages - 1;
+  }
+
+  void push_block(const std::string& block_name) {
+    block_stack.push_back(block_name);
+    graph->update_nested_block_name(block_stack);
+  }
+
+  void pop_block() {
+    block_stack.pop_back();
+    graph->update_nested_block_name(block_stack);
   }
 };
 

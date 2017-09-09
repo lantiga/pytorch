@@ -70,6 +70,8 @@ void initPythonIRBindings(PyObject * module_) {
     // std::shared_ptr stored graph object, and would cause a double free
     .NS(debugName)
     .NS(setDebugName)
+    .NS(blockName)
+    .NS(name)
     .NS(unique)
     .NS(uniqueName)
     .NS(setStage)
