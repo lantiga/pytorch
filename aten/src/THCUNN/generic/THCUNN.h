@@ -179,6 +179,46 @@ TH_API void THNN_(GatedLinear_updateGradInput)(
                   THCTensor *gradInput,
                   int dim);
 
+TH_API void THNN_(Im2Col_updateOutput)(
+                  THCState *state,
+                  THCTensor *input,
+                  THCTensor *output,
+                  int kH, int kW,
+                  int dH, int dW,
+                  int padH, int padW,
+                  int sH, int sW);
+
+TH_API void THNN_(Im2Col_updateGradInput)(
+                  THCState *state,
+                  THCTensor *input,
+                  THCTensor *gradOutput,
+                  THCTensor *gradInput,
+                  int kH, int kW,
+                  int dH, int dW,
+                  int padH, int padW,
+                  int sH, int sW);
+
+TH_API void THNN_(Col2Im_updateOutput)(
+                  THCState *state,
+                  THCTensor *input,
+                  THCTensor *output,
+                  int outputHeight, int outputWidth,
+                  int kH, int kW,
+                  int dH, int dW,
+                  int padH, int padW,
+                  int sH, int sW);
+
+ TH_API void THNN_(Col2Im_updateGradInput)(
+                  THCState *state,
+                  THCTensor *input,
+                  THCTensor *gradOutput,
+                  THCTensor *gradInput,
+                  int outputHeight, int outputWidth,
+                  int kH, int kW,
+                  int dH, int dW,
+                  int padH, int padW,
+                  int sH, int sW);
+
 TH_API void THNN_(LeakyReLU_updateOutput)(
                   THCState *state,
                   THCTensor *input,
@@ -1639,24 +1679,5 @@ TH_API void THNN_(VolumetricUpSamplingTrilinear_updateGradInput)(
                   int outputDepth,
                   int outputHeight,
                   int outputWidth);
-
-TH_API void THNN_(Im2Col_updateOutput)(
-                  THCState *state,
-                  THCTensor *input,
-                  THCTensor *output,
-                  int kH, int kW,
-                  int dH, int dW,
-                  int padH, int padW,
-                  int sH, int sW);
-
-TH_API void THNN_(Im2Col_updateGradInput)(
-                  THCState *state,
-                  THCTensor *input,
-                  THCTensor *gradOutput,
-                  THCTensor *gradInput,
-                  int kH, int kW,
-                  int dH, int dW,
-                  int padH, int padW,
-                  int sH, int sW);
 
 #endif

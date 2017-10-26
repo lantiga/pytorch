@@ -92,6 +92,9 @@
 #include "generic/Im2Col.c"
 #include "THGenerateFloatTypes.h"
 
+#include "generic/Col2Im.c"
+#include "THGenerateFloatTypes.h"
+
 #include "generic/GatedLinearUnit.c"
 #include "THGenerateFloatTypes.h"
 

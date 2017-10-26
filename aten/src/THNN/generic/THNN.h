@@ -158,6 +158,46 @@ TH_API void THNN_(HardTanh_updateGradInput)(
           accreal max_val,             // upper threshold
           bool inplace);
 
+TH_API void THNN_(Im2Col_updateOutput)(
+          THNNState *state,
+          THTensor *input,
+          THTensor *output,
+          int kH, int kW,
+          int dH, int dW,
+          int padH, int padW,
+          int sH, int sW);
+
+TH_API void THNN_(Im2Col_updateGradInput)(
+          THNNState *state,
+          THTensor *input,
+          THTensor *gradOutput,
+          THTensor *gradInput,
+          int kH, int kW,
+          int dH, int dW,
+          int padH, int padW,
+          int sH, int sW);
+
+TH_API void THNN_(Col2Im_updateOutput)(
+          THNNState *state,
+          THTensor *input,
+          THTensor *output,
+          int outputHeight, int outputWidth,
+          int kH, int kW,
+          int dH, int dW,
+          int padH, int padW,
+          int sH, int sW);
+
+TH_API void THNN_(Col2Im_updateGradInput)(
+          THNNState *state,
+          THTensor *input,
+          THTensor *gradOutput,
+          THTensor *gradInput,
+          int outputHeight, int outputWidth,
+          int kH, int kW,
+          int dH, int dW,
+          int padH, int padW,
+          int sH, int sW);
+
 TH_API void THNN_(L1Cost_updateOutput)(
           THNNState *state,            // library's state
           THTensor *input,             // input tensor
@@ -1674,24 +1714,5 @@ TH_API void THNN_(TemporalReplicationPadding_updateGradInput)(
           THTensor *gradOutput,
           THTensor *gradInput,
           int pad_l, int pad_r);
-
-TH_API void THNN_(Im2Col_updateOutput)(
-          THNNState *state,
-          THTensor *input,
-          THTensor *output,
-          int kH, int kW,
-          int dH, int dW,
-          int padH, int padW,
-          int sH, int sW);
-
-TH_API void THNN_(Im2Col_updateGradInput)(
-          THNNState *state,
-          THTensor *input,
-          THTensor *gradOutput,
-          THTensor *gradInput,
-          int kH, int kW,
-          int dH, int dW,
-          int padH, int padW,
-          int sH, int sW);
 
 #endif
