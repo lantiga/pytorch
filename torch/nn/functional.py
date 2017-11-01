@@ -12,8 +12,6 @@ from .modules import utils
 from ._functions.linear import Bilinear
 from ._functions.padding import ConstantPadNd
 from ._functions.vision import GridSampler, AffineGridGenerator
-from ._functions.thnn.unfold import Im2Col
-from ._functions.thnn.fold import Col2Im
 from torch.autograd import Variable
 from .modules.utils import _single, _pair, _triple
 
@@ -1505,8 +1503,11 @@ def normalize(input, p=2, dim=1, eps=1e-12):
     """
     return input / input.norm(p, dim, True).clamp(min=eps).expand_as(input)
 
-def im2col(input, kH, kW, dH, dW, padH, padW, sH, sW):
-    return _functions.thnn.Im2Col(kH, kW, dH, dW, padH, padW, sH, sW)(input)
+def im2col(input, kernel_size, dilation=1, padding=0, stride=1):
+    return _functions.thnn.Im2Col.apply(input, _pair(kernel_size), _pair(dilation), _pair(padding), _pair(stride))
+
+def col2im(input, output_size, kernel_size, dilation=1, padding=0, stride=1):
+    return _functions.thnn.Col2Im.apply(input, output_size, _pair(kernel_size), _pair(dilation), _pair(padding), _pair(stride))
 
 def correlation(input1, input2, pad_size, kernel_size, max_displacement, stride1, stride2, corr_multiply):
     return _functions.thnn.Correlation(pad_size, kernel_size, max_displacement, stride1, stride2, corr_multiply)(input1, input2)
