@@ -11,7 +11,7 @@ class Fold(Module):
     TODO: docstring
     """
 
-    def __init__(self, output_size, kernel_size=(2, 2), dilation=(1, 1), padding=(0, 0), stride=(1, 1)):
+    def __init__(self, output_size, kernel_size, dilation, padding, stride):
         super(Fold, self).__init__()
         self.output_size = output_size
         self.kernel_size = kernel_size

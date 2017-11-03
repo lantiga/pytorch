@@ -23,12 +23,11 @@ class Unfold(Module):
 
     Args:
         kernel_size (int or tuple): the size of the neighborhoods to convert
-        stride (int or tuple): the stride of the sliding neighborhood.
-                               Default: 1
+        stride (int or tuple): the stride of the sliding neighborhood. Default: 1
         padding (int or tuple, optional): implicit zero padding to be added on
                                           both sides of input. Default: 0
         dilation (int or tuple, optional): a parameter that controls the
-                                           vertical stride of elements in the
+                                           stride of elements within the
                                            neighborhood
 
     Shape:
@@ -47,7 +46,7 @@ class Unfold(Module):
         https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md
     """
 
-    def __init__(self, kernel_size=(2, 2), dilation=(1, 1), padding=(0, 0), stride=(1, 1)):
+    def __init__(self, kernel_size, dilation, padding, stride):
         super(Unfold, self).__init__()
         self.kernel_size = kernel_size
         self.dilation = dilation
